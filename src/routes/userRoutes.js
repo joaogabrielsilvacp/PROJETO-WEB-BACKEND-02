@@ -11,3 +11,4 @@ router.get("/admin/painel", protect, adminMiddleware, (req, res) => {
 });
 
 module.exports = router;
+
