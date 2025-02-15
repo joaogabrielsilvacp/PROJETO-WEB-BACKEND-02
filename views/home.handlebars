@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <header>
+        <button id="logoutBtn" onclick="logout()" style="display:none;">Deslogar</button>
+    </header>
+
+    <h2>Ingressos Disponíveis</h2>
+
+    {{#each tickets}}
+        <div class="ticket" id="ticket-{{this._id}}">
+            <h3>{{this.name}}</h3>
+            <p><strong>Preço:</strong> R$ {{this.price}}</p>
+            <p><strong>Estoque:</strong> <span id="stock-{{this._id}}">{{this.quantity}}</span></p>
+            <label for="quantity{{this._id}}"><strong>Quantidade:</strong></label>
+            <input type="number" id="quantity{{this._id}}" name="quantity" min="1" max="{{this.quantity}}" value="1" class="quantity-input" />
+            <button onclick="verificarLogin('{{this._id}}')">Comprar</button>
+        </div>
+    {{/each}}
+
+    <script>
+        function checkLogin() {
+            const token = localStorage.getItem("token");
+            const logoutBtn = document.getElementById("logoutBtn");
+
+            if (token) {
+                logoutBtn.style.display = "inline-block";
+            } else {
+                logoutBtn.style.display = "none";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            alert("Você foi deslogado com sucesso!");
+            window.location.href = "/";
+        }
+
+        function verificarLogin(ticketId) {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                alert("Você precisa estar logado para realizar a compra!");
+                window.location.href = "/login";
+            } else {
+                const quantity = document.getElementById(`quantity${ticketId}`).value;
+
+                if (quantity <= 0 || quantity > document.getElementById(`quantity${ticketId}`).max) {
+                    alert("Quantidade inválida!");
+                    return;
+                }
+
+                fetch(`/api/tickets/purchase`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ ticketId, quantity: parseInt(quantity) })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        if (data.ticket) {
+                            document.getElementById(`stock-${ticketId}`).innerText = data.ticket.quantity;
+                        }
+                    }
+                })
+                .catch(() => {
+                    alert("Erro ao tentar realizar a compra!");
+                });
+            }
+        }
+
+        window.onload = checkLogin;
+    </script>
+</body>
+</html>

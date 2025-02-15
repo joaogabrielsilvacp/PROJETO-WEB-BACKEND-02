@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuário</title>
+    <a href="/api/tickets/history" class="btn">Ver Histórico de Compras</a>
+    <a href="/profile" class="btn">Perfil</a>
+</head>
+<body>
+    <div class="profile">
+        <h2>Bem-vindo ao seu perfil</h2>
+
+        <h3>Histórico de Compras</h3>
+        <ul id="purchase-history">
+            
+        </ul>
+
+        <script>
+           document.addEventListener("DOMContentLoaded", async function() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3000/api/tickets/history", { 
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const purchases = await response.json();
+            const purchaseList = document.getElementById("purchase-history");
+
+            if (purchases.length === 0) {
+                purchaseList.innerHTML = "<li>Você ainda não comprou ingressos.</li>";
+            } else {
+                purchaseList.innerHTML = purchases.map(purchase => `
+                    <li>
+                        <strong>Data da Compra:</strong> ${new Date(purchase.purchaseDate).toLocaleDateString()} <br>
+                        <strong>Ingresso:</strong> ${purchase.ticketId.name} <br>
+                        <strong>Quantidade:</strong> ${purchase.quantity} <br>
+                        <strong>Preço Unitário:</strong> R$ ${purchase.price.toFixed(2)} <br>
+                        <strong>Total:</strong> R$ ${purchase.total.toFixed(2)}
+                    </li>
+                    <hr>
+                `).join('');
+            }
+        } catch (error) {
+            console.error("Erro ao buscar histórico:", error);
+            document.getElementById("purchase-history").innerHTML = "<li>Erro ao carregar histórico de compras.</li>";
+        }
+    });
+        </script>
+    </div>
+</body>
+</html>

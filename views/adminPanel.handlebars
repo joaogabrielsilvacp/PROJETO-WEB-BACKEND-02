@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração</title>
+</head>
+<body>
+    <div class="admin-panel">
+        <h2>Painel de Administração</h2>
+
+        <h3>Adicionar Ingresso</h3>
+        <form id="add-ticket-form">
+            <input type="text" id="ticket-name" placeholder="Nome do ingresso" required>
+            <input type="number" id="ticket-price" placeholder="Preço" required>
+            <input type="number" id="ticket-quantity" placeholder="Quantidade em Estoque" required>
+            <button type="submit">Adicionar Ingresso</button>
+        </form>
+
+        <h3>Ingressos Existentes</h3>
+        <ul id="ticket-list"></ul>
+
+        
+        <div id="edit-form" style="display:none;">
+            <h3>Editar Ingresso</h3>
+            <form id="edit-ticket-form">
+                <input type="text" id="edit-ticket-name" placeholder="Nome do ingresso" required>
+                <input type="number" id="edit-ticket-price" placeholder="Preço" required>
+                <input type="number" id="edit-ticket-quantity" placeholder="Quantidade em Estoque" required>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+
+        <script>
+            let tickets = [];
+
+            document.addEventListener("DOMContentLoaded", async function() {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                const response = await fetch("http://localhost:3000/api/tickets", {
+                    method: "GET",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                tickets = await response.json();
+                const ticketList = document.getElementById("ticket-list");
+                ticketList.innerHTML = tickets.map(ticket => `
+                    <li>
+                        ${ticket.name} - R$ ${ticket.price} - Quantidade: ${ticket.quantity} 
+                        <button onclick="editTicket('${ticket._id}')">Editar</button>
+                        <button onclick="deleteTicket('${ticket._id}')">Deletar</button>
+                    </li>
+                `).join("");
+
+                document.getElementById("add-ticket-form").addEventListener("submit", async function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById("ticket-name").value;
+                    const price = document.getElementById("ticket-price").value;
+                    const quantity = document.getElementById("ticket-quantity").value;
+
+                    const addResponse = await fetch("http://localhost:3000/api/tickets", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ name, price, quantity })
+                    });
+
+                    if (addResponse.status === 201) {
+                        alert("Ingresso adicionado com sucesso!");
+                        location.reload();
+                    } else {
+                        alert("Erro ao adicionar ingresso.");
+                    }
+                });
+            });
+
+            function editTicket(ticketId) {
+                
+                const ticketToEdit = tickets.find(ticket => ticket._id === ticketId);
+
+                if (ticketToEdit) {
+                   
+                    document.getElementById("edit-ticket-name").value = ticketToEdit.name;
+                    document.getElementById("edit-ticket-price").value = ticketToEdit.price;
+                    document.getElementById("edit-ticket-quantity").value = ticketToEdit.quantity;
+
+                    
+                    document.getElementById("edit-form").style.display = "block";
+
+                    
+                    document.getElementById("edit-ticket-form").onsubmit = async function(e) {
+                        e.preventDefault();
+                        const updatedName = document.getElementById("edit-ticket-name").value;
+                        const updatedPrice = document.getElementById("edit-ticket-price").value;
+                        const updatedQuantity = document.getElementById("edit-ticket-quantity").value;
+
+                        const token = localStorage.getItem("token");
+
+                        const editResponse = await fetch(`http://localhost:3000/api/tickets/${ticketToEdit._id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ name: updatedName, price: updatedPrice, quantity: updatedQuantity })
+                        });
+
+                        if (editResponse.status === 200) {
+                            alert("Ingresso atualizado com sucesso!");
+                            location.reload();
+                        } else {
+                            alert("Erro ao atualizar ingresso.");
+                        }
+                    };
+                }
+            }
+
+            async function deleteTicket(ticketId) {
+                const token = localStorage.getItem("token");
+                const response = await fetch(`http://localhost:3000/api/tickets/${ticketId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (response.status === 200) {
+                    alert("Ingresso deletado com sucesso!");
+                    location.reload();
+                } else {
+                    alert("Erro ao deletar ingresso.");
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

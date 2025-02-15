@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{{title}}}</title> 
+    <link rel="stylesheet" href="/styles.css"> 
+</head>
+<body>
+    <header>
+        <h1>{{{headerTitle}}}</h1>
+        <nav>
+            <ul>
+                <li><a href="/" class="home">Home</a></li>
+                <li><a href="/login" class="login">Login</a></li>
+                <li><a href="/register" class="register">Cadastro</a></li>
+                
+                {{#if user}} 
+                    <li><a href="/profile" class="profile">Perfil</a></li> 
+                    
+                    {{#if user.isAdmin}} 
+                        <li><a href="/admin/painel" class="painel">Painel</a></li> 
+                    {{/if}}
+                {{/if}}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {{{body}}} 
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Venda de Ingressos. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

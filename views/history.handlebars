@@ -1,0 +1,18 @@
+<h2>Histórico de Compras</h2>
+
+{{#if purchases.length}}
+    <ul>
+        {{#each purchases}}
+            <li>
+                <strong>Data da Compra:</strong> {{this.purchaseDate}} <br>
+                <strong>Ingresso:</strong> {{this.ticketId.name}} <br>
+                <strong>Quantidade:</strong> {{this.quantity}} <br>
+                <strong>Preço Unitário:</strong> R$ {{this.price}} <br>
+                <strong>Total:</strong> R$ {{this.total}}
+            </li>
+            <hr>
+        {{/each}}
+    </ul>
+{{else}}
+    <p>Você ainda não comprou ingressos.</p>
+{{/if}}

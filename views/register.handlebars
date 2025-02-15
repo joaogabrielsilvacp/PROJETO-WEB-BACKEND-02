@@ -1,0 +1,23 @@
+{{> header}}
+<link rel="stylesheet" href="/styles.css">
+
+
+<h2>Cadastro de Usuário</h2>
+
+<form action="/api/users/register" method="POST">
+
+<label for="name">Nome:</label>
+    <input type="text" name="name" id="name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required>
+
+    <label for="password">Senha:</label>
+    <input type="password" name="password" id="password" required>
+
+    <label for="isAdmin">Administrador:</label>
+    <input type="checkbox" id="isAdmin" name="isAdmin">
+
+    <button type="submit">Cadastrar</button>
+</form>
+
