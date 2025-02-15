@@ -93,3 +93,4 @@ exports.deleteTicket = async (req, res) => {
         res.status(500).json({ message: "Erro ao deletar ingresso", error: error.message });
     }
 };
+
