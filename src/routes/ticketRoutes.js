@@ -12,6 +12,7 @@ router.post("/", protect, async (req, res) => {
         return res.status(403).json({ message: "Acesso negado. Somente administradores." });
     }
 
+    
     try {
         const { name, price, quantity } = req.body;
 
